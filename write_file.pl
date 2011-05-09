@@ -5,16 +5,16 @@ write_file(File) :-
         read(X),
         write(X),
         told.
-    
-browse(File) :- 
-        seeing(Old),      /* save for later */ 
-        see(File),        /* open this file */ 
-        repeat, 
-        read(Data),       /* read from File */ 
-        process(Data),    
-        seen,             /* close File */ 
-        see(Old),         /*  previous read source */ 
-        !.                /* stop now */ 
- 
-process(end-of-file) :- !. 
-process(Data) :-  write(Data), nl, fail. 
+
+parse(File,List) :-
+          seeing(Old),
+          see(File),  
+          process([],List),
+          seen,       
+          see(Old),   
+          !.          
+          
+process(In,Out):-
+   read(Data),
+   (Data == end_of_file -> Out = In;
+    process([Data|In],Out)).
