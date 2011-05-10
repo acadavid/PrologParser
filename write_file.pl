@@ -9,12 +9,25 @@ write_file(File) :-
 parse(File,List) :-
           seeing(Old),
           see(File),  
-          process([],List),
+          processInput([],Datalist),          
           seen,       
-          see(Old),   
+          see(Old),
+          transform(Datalist,List),
           !.          
           
-process(In,Out):-
+processInput(In,Out):-
    read(Data),
-   (Data == end_of_file -> Out = In;
-    process([Data|In],Out)).
+   (Data == end_of_file -> Out = In;         
+     processInput([Data|In],Out)).
+
+transform([H|[]], [[H1|[T1]]]) :-
+    /*functor(H, Functor, Arity),*/
+    arg(1,H,H1),
+    arg(2,H,T1).
+
+transform([H|T], [[H1|[T1]]|List]) :-
+    /*functor(H, Functor, Arity),*/    
+    arg(1,H,H1),
+    arg(2,H,T1),
+    transform(T,List).
+
