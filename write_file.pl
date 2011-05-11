@@ -20,21 +20,16 @@ processInput(In,Out):-
    (Data == end_of_file -> Out = In;         
      processInput([Data|In],Out)).
 
-transform([H|[]], [[H1|Equations]]) :-
-    ( arg(1,H,H1),
-      arg(2,H,T1),
-      ((functor(T1,',',Arity),
-      splitEquations(T1,Arity,Equations));Equations = [T1]));
-    ( H1 = [H], Equations = [] ).   
-    
+transform([],[]).  
 
 transform([H|T], [[H1|Equations]|List]) :- 
-    (( arg(1,H,H1),
-      arg(2,H,T1),
-      ((functor(T1,',',Arity),
-      splitEquations(T1,Arity,Equations));Equations = [T1]));
-    ( H1 = [H], Equations = [] )),
-      transform(T,List).
+    (( arg(1,H,H1),                             % Is a rule
+       arg(2,H,T1),
+       ((functor(T1,',',Arity),       
+         splitEquations(T1,Arity,Equations));     % extrect the equations to a list "Equations"  
+         Equations = [T1]) );                     % may be there is only one equation
+     ( H1 = H, Equations = [] )),               % Is a fact
+    transform(T,List).
     
 splitEquations(_,0,[]).
 splitEquations(Body,N,Equations) :-
