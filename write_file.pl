@@ -13,6 +13,9 @@ parse(File,List) :-
           seen,       
           see(Old),
           transform(Datalist,List),
+          tell('out.pl'),
+          out(List),
+          told,
           !.          
           
 processInput(In,Out):-
@@ -20,9 +23,8 @@ processInput(In,Out):-
    (Data == end_of_file -> Out = In;         
      processInput([Data|In],Out)).
 
-transform([],[]).  
-
-transform([H|T], [[H1|Equations]|List]) :- 
+transform([],[]).
+transform([H|T], [[H1|[Equations]]|List]) :- 
     (( arg(1,H,H1),                             % Is a rule
        arg(2,H,T1),
        ((functor(T1,',',Arity),       
@@ -37,5 +39,13 @@ splitEquations(Body,N,Equations) :-
     N1 is N-1,
     splitEquations(Body,N1,Args),
     append(Args,[E],Equations).    
-        
+
+out([]).
+out([H|T]):-
+    append([regla],H,R),
+    X =.. R,
+    write(X),
+    write('.'),
+    nl,
+    out(T).
     
