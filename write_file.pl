@@ -71,10 +71,6 @@ verifyoverlap(Lhss,[H|T]):-
 match(_,[]).
 match(X,[H|T]) :- match(X,T), ((X = H, write(X), write(' overlaps'),nl);true). 
 
-
-writelist([]).
-writelist([H|T]):-write(H),write(' '),writelist(T).
-
 getlhss([],_,_).
 getlhss([H|T],Lhss,Equations):-    
     arg(1,H,Lhs),
