@@ -6,17 +6,23 @@ write_file(File) :-
         write(X),
         told.
 
+/*** Entrega 2 ***/        
+
+%Reads a file and returs it into Datalist variable
+readfile(File,Datalist) :- 
+    seeing(Old),
+    see(File),  
+    processInput([],Datalist),          
+    seen,       
+    see(Old).
+    
 parse(File,List) :-
-          seeing(Old),
-          see(File),  
-          processInput([],Datalist),          
-          seen,       
-          see(Old),
-          transform(Datalist,List),
-          tell('out.pl'),
-          out(List),
-          told,
-          !.          
+    readfile(File,Datalist),          
+    transform(Datalist,List),
+    tell('out.pl'),
+    out(List),
+    told,
+    !.          
           
 processInput(In,Out):-
    read(Data),
@@ -25,20 +31,21 @@ processInput(In,Out):-
 
 transform([],[]).
 transform([H|T], [[H1|[Equations]]|List]) :- 
-    (( arg(1,H,H1),                             % Is a rule
+    (( arg(1,H,H1),                         % Is a rule
        arg(2,H,T1),
-       ((functor(T1,',',Arity),       
-         splitEquations(T1,Arity,Equations));     % extrect the equations to a list "Equations"  
-         Equations = [T1]) );                     % may be there is only one equation
-     ( H1 = H, Equations = [] )),               % Is a fact
+       ((functor(T1,',',_),       
+         splitEquations(T1,Equations));     % extrect the equations to a list "Equations"  
+         Equations = [T1]) );               % may be there is only one equation
+     ( H1 = H, Equations = [] )),           % Is a fact
     transform(T,List).
     
-splitEquations(_,0,[]).
-splitEquations(Body,N,Equations) :-
-    arg(N,Body,E), %Each equation is extracted to E
-    N1 is N-1,
-    splitEquations(Body,N1,Args),
-    append(Args,[E],Equations).    
+splitEquations(Body,Equations) :-
+    (functor(Body,',',_),	    %if this fail, then is the last element in the tuple
+    arg(1,Body,E),              % E gets a sinle equation, the first in the tuple
+    arg(2,Body,Args),
+    splitEquations(Args,Args2),
+    append(Args2,[E],Equations));
+    Equations = [Body].    
 
 out([]).
 out([H|T]):-
@@ -48,4 +55,33 @@ out([H|T]):-
     write('.'),
     nl,
     out(T).
+
+/*** Entrega 3 ***/
+
+nooverlap(File) :-
+    readfile(File,Datalist),
+    getlhss(Datalist,Lhss, Equations),
+    verifyoverlap(Lhss,Equations).
+
+verifyoverlap(_,[]).   
+verifyoverlap(Lhss,[H|T]):-
+    match(H,Lhss),
+    verifyoverlap(Lhss,T).
+    
+match(_,[]).
+match(X,[H|T]) :- match(X,T), ((X = H, write(X), write(' overlaps'),nl);true). 
+
+
+writelist([]).
+writelist([H|T]):-write(H),write(' '),writelist(T).
+
+getlhss([],_,_).
+getlhss([H|T],Lhss,Equations):-    
+    arg(1,H,Lhs),
+    arg(2,H,E),
+    getlhss(T,Lhss2,E2),
+    append([Lhs],Lhss2,Lhss),
+    append(E,E2,Equations).
+    
+    
     
