@@ -79,5 +79,18 @@ getlhss([H|T],Lhss,Equations):-
     append([Lhs],Lhss2,Lhss),
     append(E,E2,Equations).
     
+novariables(File) :-
+    readfile(File,Datalist),
+    getlhss(Datalist,Lhss, Equations),
+    veryfyvariables(Lhss).
+    
+veryfyvariables([]).
+veryfyvariables([H|T]):-
+    H =.. [Functor|Args],
+    ((not(variable(Args)),write(H),write(' Tiene variables en la cabeza'),nl);true),
+    veryfyvariables(T).
+
+variable([]).
+variable([H|T]):- atom(H), variable(T).    
     
     
